@@ -47,7 +47,7 @@
       <div class="starter-template">
 
 	<h1>CEDAR Harmonize</h1>
-	<p>Welcome to CEDAR Harmonize, an RDF Harmonization layer generator for non-aligned statistical datasets.</p>
+	<p>An RDF Harmonization layer generator for non-aligned statistical datasets.</p>
 
 	%if state == 'start':
 	<p>Available options are:</p>
@@ -56,9 +56,45 @@
 
 	%elif state == 'vocab':
 	<p>Variables and values currently in the RDF Harmonization vocabulary</p>
+	<center>
+	<table>
+	  <tr><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
+	  %for result in results["results"]["bindings"]:
+	  %   var = result["var"]["value"]
+	  %   value = result["value"]["value"]
+	  <tr><td>{{var}}</td><td>{{value}}</td></tr>
+	  %end
+	</table>
+	</center>
+
+	<br>
+	<a href="/harmonize">Back</a>
+
+	%elif state == 'manage-ds':
+	<p>Select a dataset:</p>
+	  %for file in files["results"]["bindings"]:
+	  %   ds = file["g"]["value"]
+	  <a href="harm?ds={{ds}}">{{ds}}</a><br>
+	  %end
+
+	<br>
+	<a href="/harmonize">Back</a>
+
+	%elif state == 'manage-variables':
+	<p>Listing dimensions and mapped variables and values for dataset {{ds}}</p>
+	<center>
+	<table>
+	  <tr>td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
+	  %for variable in variables["results"]["bindings"]:
+          {{variable}}
+	  %end
+	</table>
+        </center>
+
+	<br>
+	<a href="/harmonize">Back</a>
 
 	%else:
-	<p>ye</p>
 
 	%end
     

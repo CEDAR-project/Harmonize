@@ -1,4 +1,5 @@
 from bottle import route, run, template, request, static_file
+from SPARQLWrapper import SPARQLWrapper, JSON
 import logging
 import glob
 import sys
@@ -18,23 +19,58 @@ def harmonize():
 
 @route('/harmonize/vocab')
 def vocab():
-    return template('harm', state='vocab', foobar='baz')
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    sparql.setQuery("""
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    
+    SELECT ?var ?value
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    ?value skos:inScheme ?var .
+    } GROUP BY ?var
+    ORDER BY ?var
+    """)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    return template('harm', state='vocab', results=results)
 
-@route('/harmonize/upload', method='POST')
-def upload():
-    # category = request.forms.get('category')
-    upload = request.files.get('upload')
-    name, ext = os.path.splitext(upload.filename)
-    if ext not in ('.xls'):
-        return 'File extension ' + ext  + ' not allowed.'
+@route('/harmonize/harm')
+def harm():
+    ds = request.query.ds
+    if not ds:
+        sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+        sparql.setQuery("""
+        PREFIX d2s: <http://www.data2semantics.org/core/>
+        
+        SELECT ?g
+        FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
+        WHERE {
+        GRAPH ?g {
+        ?s d2s:dimension ?dim
+        }
+        } GROUP BY ?g ORDER BY ?g
+        """)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        return template('harm', state='manage-ds', files=results)
+    else:
+        sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+        sparql.setQuery("""
+        PREFIX d2s: <http://www.data2semantics.org/core/>
 
-    save_path = '../input/in.xls'
-    upload.save(save_path, overwrite = True) # appends upload.filename automatically
-    return template('harm', state='uploaded')
-
-@route('/harmonize/download')
-def download():
-    return static_file('in.ttl', root = '../output/', download = 'tablinker.ttl')
+        SELECT DISTINCT(?dim) ?varname ?val
+        FROM <%s> 
+        FROM <http://lod.cedar-project.nl/resource/harm> 
+        WHERE { 
+        {GRAPH <http://lod.cedar-project.nl/resource/harm> {?dim ?var ?val .}}
+        UNION 
+        {?s d2s:dimension ?dim .}
+        }
+        """ % ds)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        return template('harm', state='manage-variables', variables=results, ds=ds)
 
 # Static Routes
 @route('/js/<filename:re:.*\.js>')
