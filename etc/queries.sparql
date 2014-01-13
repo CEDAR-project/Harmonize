@@ -1,0 +1,49 @@
+# List of variables of the vocabulary and their values
+PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+   
+SELECT ?var ?value
+FROM <http://lod.cedar-project.nl/resource/harmonization>
+WHERE {
+?value skos:inScheme ?var .
+} GROUP BY ?var
+ORDER BY ?var
+
+# List of variables
+
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+   
+SELECT ?var
+FROM <http://lod.cedar-project.nl/resource/harmonization>
+WHERE {
+?value skos:inScheme ?var .
+} GROUP BY ?var
+ORDER BY ?var
+
+# List of values per variable
+
+# List of datasets
+PREFIX d2s: <http://www.data2semantics.org/core/>
+        
+SELECT ?g
+FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
+WHERE {
+GRAPH ?g {
+?s d2s:dimension ?dim
+}
+} GROUP BY ?g ORDER BY ?g
+
+# Mappings per dataset
+
+PREFIX d2s: <http://www.data2semantics.org/core/>
+        
+SELECT DISTINCT(?dim) ?var ?val
+FROM <%s>
+FROM <http://lod.cedar-project.nl/resource/harm>
+WHERE {
+{GRAPH <%s> {?s d2s:dimension ?dim .}}
+OPTIONAL {
+{GRAPH <http://lod.cedar-project.nl/resource/harm> {?dim ?var ?val .}}
+}
+} ORDER BY ?dim
+
