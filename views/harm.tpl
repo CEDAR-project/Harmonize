@@ -82,19 +82,33 @@
 
 	%elif state == 'manage-variables':
 	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
-	<center>
+	<div class="container">
 	<table>
 	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
-	  %for variable in variables["results"]["bindings"]:
+	  %for line in dimvarval["results"]["bindings"]:
           <tr>
-	    <td>{{variable["dim"]["value"] if "dim" in variable else ""}}</td>
-	    <td>{{variable["var"]["value"] if "var" in variable else ""}}</td>
-	    <td>{{variable["val"]["value"] if "val" in variable else ""}}</td>
+	    <td>{{line["dim"]["value"] if "dim" in line else ""}}</td>
+	    <td>
+	      <select>
+		<option value="None">N/A</option>
+		%for var in variables["results"]["bindings"]:
+		<option {{"selected" if "var" in line and var['var']['value'] == line['var']['value'] else ""}} value="{{var['var']['value']}}">{{var["var"]["value"]}}</option>
+		%end
+	      </select>
+	    </td>
+	    <td>
+	      <select>
+		<option value="None">N/A</option>
+		%for val in values["results"]["bindings"]:
+		<option {{"selected" if "val" in line and val['val']['value'] == line['val']['value'] else ""}} value="{{val['val']['value']}}">{{val["val"]["value"]}}</option>
+		%end
+	      </select>
+	    </td>
 	  </tr>
 	  %end
 
 	</table>
-        </center>
+	</div>
 
 	<br>
 	<a href="/harmonize">Back</a>

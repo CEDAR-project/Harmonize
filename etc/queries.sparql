@@ -22,6 +22,15 @@ ORDER BY ?var
 
 # List of values per variable
 
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+   
+SELECT ?value
+FROM <http://lod.cedar-project.nl/resource/harmonization>
+WHERE {
+?value skos:inScheme ?var .
+} GROUP BY ?var
+ORDER BY ?var
+
 # List of datasets
 PREFIX d2s: <http://www.data2semantics.org/core/>
         

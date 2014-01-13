@@ -23,7 +23,6 @@ def vocab():
     sparql.setQuery("""
     PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    
     SELECT ?var ?value
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
@@ -42,7 +41,6 @@ def harm():
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
         sparql.setQuery("""
         PREFIX d2s: <http://www.data2semantics.org/core/>
-        
         SELECT ?g
         FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
         WHERE {
@@ -55,10 +53,10 @@ def harm():
         results = sparql.query().convert()
         return template('harm', state='manage-ds', files=results)
     else:
+        # List of dimensions, variables and values in the harm layer
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
         sparql.setQuery("""
         PREFIX d2s: <http://www.data2semantics.org/core/>
-        
         SELECT DISTINCT(?dim) ?var ?val
         FROM <%s>
         FROM <http://lod.cedar-project.nl/resource/harm>
@@ -70,8 +68,30 @@ def harm():
         } ORDER BY ?dim
         """ % (ds, ds))
         sparql.setReturnFormat(JSON)
-        results = sparql.query().convert()
-        return template('harm', state='manage-variables', variables=results, ds=ds)
+        dimvarval = sparql.query().convert()
+        # List of all variables (feeding the combos)
+        sparql.setQuery("""
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?var
+        FROM <http://lod.cedar-project.nl/resource/harmonization>
+        WHERE {
+        ?value skos:inScheme ?var .
+        } GROUP BY ?var
+        ORDER BY ?var
+        """)
+        variables = sparql.query().convert()
+        # List of all values (feeding the combos)
+        sparql.setQuery("""
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?val
+        FROM <http://lod.cedar-project.nl/resource/harmonization>
+        WHERE {
+        ?val skos:inScheme ?var .
+        } GROUP BY ?val
+        ORDER BY ?val
+        """)
+        values = sparql.query().convert()
+        return template('harm', state='manage-variables', dimvarval=dimvarval, variables=variables, values=values, ds=ds)
 
 # Static Routes
 @route('/js/<filename:re:.*\.js>')
