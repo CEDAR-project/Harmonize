@@ -46,11 +46,11 @@
 
       <div class="starter-template">
 
+	<img align="center" src="/img/cedar_150x150.jpg">
 	<h1>CEDAR Harmonize</h1>
-	<p>An RDF Harmonization layer generator for non-aligned statistical datasets.</p>
+	<p>CEDAR Harmonize is an RDF harmonization layer generator for non-aligned statistical datasets.</p>
 
 	%if state == 'start':
-	<p>Available options are:</p>
 	<a href="/harmonize/vocab">RDF Harmonization vocabulary</a><br>
 	<a href="/harmonize/harm">Manage harmonization layer</a>
 
@@ -81,13 +81,18 @@
 	<a href="/harmonize">Back</a>
 
 	%elif state == 'manage-variables':
-	<p>Listing dimensions and mapped variables and values for dataset {{ds}}</p>
+	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
 	<center>
 	<table>
-	  <tr>td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
+	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
 	  %for variable in variables["results"]["bindings"]:
-          {{variable}}
+          <tr>
+	    <td>{{variable["dim"]["value"] if "dim" in variable else ""}}</td>
+	    <td>{{variable["var"]["value"] if "var" in variable else ""}}</td>
+	    <td>{{variable["val"]["value"] if "val" in variable else ""}}</td>
+	  </tr>
 	  %end
+
 	</table>
         </center>
 

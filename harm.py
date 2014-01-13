@@ -58,16 +58,17 @@ def harm():
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
         sparql.setQuery("""
         PREFIX d2s: <http://www.data2semantics.org/core/>
-
-        SELECT DISTINCT(?dim) ?varname ?val
-        FROM <%s> 
-        FROM <http://lod.cedar-project.nl/resource/harm> 
-        WHERE { 
+        
+        SELECT DISTINCT(?dim) ?var ?val
+        FROM <%s>
+        FROM <http://lod.cedar-project.nl/resource/harm>
+        WHERE {
+        {GRAPH <%s> {?s d2s:dimension ?dim .}}
+        OPTIONAL {
         {GRAPH <http://lod.cedar-project.nl/resource/harm> {?dim ?var ?val .}}
-        UNION 
-        {?s d2s:dimension ?dim .}
         }
-        """ % ds)
+        } ORDER BY ?dim
+        """ % (ds, ds))
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
         return template('harm', state='manage-variables', variables=results, ds=ds)
