@@ -82,7 +82,7 @@
 
 	%elif state == 'manage-variables':
 	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
-	<div class="container">
+
 	<table>
 	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
@@ -108,7 +108,7 @@
 	  %end
 
 	</table>
-	</div>
+
 
 	<br>
 	<a href="/harmonize">Back</a>
