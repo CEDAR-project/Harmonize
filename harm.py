@@ -93,30 +93,35 @@ def harm():
         values = sparql.query().convert()
         return template('harm', state='manage-variables', dimvarval=dimvarval, variables=variables, values=values, ds=ds)
 
-@route('/harmonize/update')
+@route('/harmonize/update', method = 'POST')
 def update():
-    dimension = request.query.dimension
-    variable = request.query.variable
-    value = request.query.value
+    dimension = request.forms.get("dim")
+    variable = request.forms.get("var")
+    value = request.forms.get("val")
+
+    print dimension, variable, value
+
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
-    sparql.setQuery("""
-    SELECT ?dim ?var ?val
+    select = """
+    SELECT ?var ?val
     FROM <http://lod.cedar-project.nl/resource/harm>
     WHERE {
-    <%s> <%s> <%s> .
+    <%s> ?var ?val .
     } GROUP BY ?var
     ORDER BY ?var
-    """ % (dimension, variable, value))
+    """
+    sparql.setQuery(select % (dimension))
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
     if "dim" in results["results"]["bindings"]:
         sparql.setQuery("""
-        DELETE FROM <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
-        """ % (dimension, variable, value))
-        sparql.query().convert()
+        DELETE FROM <http://lod.cedar-project.nl/resource/harm> {<%s> ?var ?val}
+        """ % (dimension))
+        deleteResults = sparql.query().convert()
     sparql.setQuery("""
     INSERT INTO <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
     """ % (dimension, variable, value))
+    insertResults = sparql.query().convert()
 
 # Static Routes
 @route('/js/<filename:re:.*\.js>')
@@ -136,4 +141,4 @@ def fonts(filename):
     return static_file(filename, root='views/fonts')
 
 
-run(host = 'lod.cedar-project.nl', port = 8082, debug = True)
+run(host = 'localhost', port = 8080, debug = True)

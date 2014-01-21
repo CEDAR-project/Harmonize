@@ -86,10 +86,11 @@
 	<table>
 	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td><b>Save</b></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
+	  %  dim = line["dim"]["value"] if "dim" in line else ""
           <tr>
-	    <td>{{line["dim"]["value"] if "dim" in line else ""}}</td>
+	    <td>{{dim}}</td>
 	    <td>
-	      <select id="ddVariable">
+	      <select id="ddVariable:{{line['dim']['value']}}" onchange="document.getElementById('formVariable:{{dim}}').value = this.value;">
 		<option value="None">N/A</option>
 		%for var in variables["results"]["bindings"]:
 		<option {{"selected" if "var" in line and var['var']['value'] == line['var']['value'] else ""}} value="{{var['var']['value']}}">{{var["var"]["value"]}}</option>
@@ -97,7 +98,7 @@
 	      </select>
 	    </td>
 	    <td>
-	      <select id="ddValue">
+	      <select id="ddValue:{{line['dim']['value']}}" onchange="document.getElementById('formValue:{{dim}}').value = this.value;">
 		<option value="None">N/A</option>
 		%for val in values["results"]["bindings"]:
 		<option {{"selected" if "val" in line and val['val']['value'] == line['val']['value'] else ""}} value="{{val['val']['value']}}">{{val["val"]["value"]}}</option>
@@ -105,7 +106,12 @@
 	      </select>
 	    </td>
 	    <td>
-	      <a href="#" onclick="updateParameters();return false;">Save</a>
+	      <form action="/harmonize/update" method="post">
+		<input type="hidden" name="dim" value="{{dim}}">
+		<input type="hidden" id="formVariable:{{dim}}" name="var" value="">
+		<input type="hidden" id="formValue:{{dim}}" name="val" value="">
+		<input value="Save" type="submit" />
+	      </form>
 	    </td>
 	  </tr>
 	  %end
@@ -128,6 +134,32 @@
     <script src="//code.jquery.com/jquery.js"></script>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
     <script src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+      function updateRow(r) {
+        console.log(r);
+        var variable = document.getElementById("ddVariable:" + r);
+        var variableUser = variable.options[variable.selectedIndex].value;
+        var value = document.getElementById("ddValue:" + r);
+        var valueUser = value.options[value.selectedIndex].value;
+        var updateURL = "/harmonize/update?dim=" + r + "&var=" + variableUser + "&val=" + valueUser + "";
+
+        console.log(updateURL);
+ 
+        window.location.href = updateURL;
+      }
+
+      function getDimVariable(d) {
+        var e = document.getElementById("ddVariable:" + d);
+        return e.options[e.selectedIndex].value;
+      }
+
+      function getDimValue(d) {
+        var e = document.getElementById("ddValue:" + d);
+        return e.options[e.selectedIndex].value;
+      }
+
+
+    </script>
 
   </body>
 </html>
