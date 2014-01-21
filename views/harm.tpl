@@ -110,6 +110,7 @@
 		<input type="hidden" name="dim" value="{{dim}}">
 		<input type="hidden" id="formVariable:{{dim}}" name="var" value="">
 		<input type="hidden" id="formValue:{{dim}}" name="val" value="">
+		<input type="hidden" name="ds" value="{{ds}}">
 		<input value="Save" type="submit" />
 	      </form>
 	    </td>
@@ -157,8 +158,6 @@
         var e = document.getElementById("ddValue:" + d);
         return e.options[e.selectedIndex].value;
       }
-
-
     </script>
 
   </body>

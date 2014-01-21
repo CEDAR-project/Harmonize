@@ -35,8 +35,12 @@ def vocab():
     return template('harm', state='vocab', results=results)
 
 @route('/harmonize/harm')
-def harm():
-    ds = request.query.ds
+def harm(__ds = None):
+    ds = None
+    if __ds:
+        ds = __ds
+    else:
+        ds = request.query.ds
     if not ds:
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
         sparql.setQuery("""
@@ -98,30 +102,20 @@ def update():
     dimension = request.forms.get("dim")
     variable = request.forms.get("var")
     value = request.forms.get("val")
-
-    print dimension, variable, value
-
+    ds = request.forms.get("ds")
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
-    select = """
-    SELECT ?var ?val
-    FROM <http://lod.cedar-project.nl/resource/harm>
-    WHERE {
-    <%s> ?var ?val .
-    } GROUP BY ?var
-    ORDER BY ?var
-    """
-    sparql.setQuery(select % (dimension))
-    sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-    if "dim" in results["results"]["bindings"]:
-        sparql.setQuery("""
-        DELETE FROM <http://lod.cedar-project.nl/resource/harm> {<%s> ?var ?val}
-        """ % (dimension))
-        deleteResults = sparql.query().convert()
-    sparql.setQuery("""
+    delete = """
+    DELETE { GRAPH <http://lod.cedar-project.nl/resource/harm> {<%s> ?var ?val .}}
+    WHERE {<%s> ?var ?val .}
+    """ % (dimension, dimension)
+    sparql.setQuery(delete)
+    deleteResults = sparql.query().convert()
+    insert = """
     INSERT INTO <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
-    """ % (dimension, variable, value))
+    """ % (dimension, variable, value)
+    sparql.setQuery(insert)
     insertResults = sparql.query().convert()
+    return harm(ds)
 
 # Static Routes
 @route('/js/<filename:re:.*\.js>')
