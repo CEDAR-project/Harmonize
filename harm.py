@@ -93,6 +93,31 @@ def harm():
         values = sparql.query().convert()
         return template('harm', state='manage-variables', dimvarval=dimvarval, variables=variables, values=values, ds=ds)
 
+@route('/harmonize/update')
+def update():
+    dimension = request.query.dimension
+    variable = request.query.variable
+    value = request.query.value
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    sparql.setQuery("""
+    SELECT ?dim ?var ?val
+    FROM <http://lod.cedar-project.nl/resource/harm>
+    WHERE {
+    <%s> <%s> <%s> .
+    } GROUP BY ?var
+    ORDER BY ?var
+    """ % (dimension, variable, value))
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    if "dim" in results["results"]["bindings"]:
+        sparql.setQuery("""
+        DELETE FROM <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
+        """ % (dimension, variable, value))
+        sparql.query().convert()
+    sparql.setQuery("""
+    INSERT INTO <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
+    """ % (dimension, variable, value))
+
 # Static Routes
 @route('/js/<filename:re:.*\.js>')
 def javascripts(filename):
@@ -112,4 +137,3 @@ def fonts(filename):
 
 
 run(host = 'lod.cedar-project.nl', port = 8082, debug = True)
-

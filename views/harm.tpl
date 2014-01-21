@@ -84,12 +84,12 @@
 	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
 
 	<table>
-	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
+	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td><b>Save</b></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
           <tr>
 	    <td>{{line["dim"]["value"] if "dim" in line else ""}}</td>
 	    <td>
-	      <select>
+	      <select id="ddVariable">
 		<option value="None">N/A</option>
 		%for var in variables["results"]["bindings"]:
 		<option {{"selected" if "var" in line and var['var']['value'] == line['var']['value'] else ""}} value="{{var['var']['value']}}">{{var["var"]["value"]}}</option>
@@ -97,12 +97,15 @@
 	      </select>
 	    </td>
 	    <td>
-	      <select>
+	      <select id="ddValue">
 		<option value="None">N/A</option>
 		%for val in values["results"]["bindings"]:
 		<option {{"selected" if "val" in line and val['val']['value'] == line['val']['value'] else ""}} value="{{val['val']['value']}}">{{val["val"]["value"]}}</option>
 		%end
 	      </select>
+	    </td>
+	    <td>
+	      <a href="#" onclick="updateParameters();return false;">Save</a>
 	    </td>
 	  </tr>
 	  %end
