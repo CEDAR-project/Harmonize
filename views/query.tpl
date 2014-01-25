@@ -31,7 +31,7 @@
     <td>{{dataset}}</td>
     <td>{{cell}}</td>
     <td>{{value}}</td>
-    <td>{{population}}</td>
+    <td>{{population.split(".")[0]}}</td>
   </tr>
 %end
 </table>
