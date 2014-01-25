@@ -111,11 +111,12 @@ def update():
     """ % (dimension, dimension)
     sparql.setQuery(delete)
     deleteResults = sparql.query().convert()
-    insert = """
-    INSERT INTO <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
-    """ % (dimension, variable, value)
-    sparql.setQuery(insert)
-    insertResults = sparql.query().convert()
+    if not (variable == 'None' or value == 'None'):
+        insert = """
+        INSERT INTO <http://lod.cedar-project.nl/resource/harm> {<%s> <%s> <%s>}
+        """ % (dimension, variable, value)
+        sparql.setQuery(insert)
+        insertResults = sparql.query().convert()
     return harm(ds)
 
 @route('/harmonize/query-iface')
