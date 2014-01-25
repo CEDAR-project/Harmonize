@@ -15,7 +15,7 @@ def version():
 @route('/harmonize')
 @route('/harmonize/')
 def harmonize():
-    return template('harm', state='start')
+    return template('harm')
 
 @route('/harmonize/vocab')
 def vocab():
@@ -32,7 +32,7 @@ def vocab():
     """)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
-    return template('harm', state='vocab', results=results)
+    return template('vocab', results=results)
 
 @route('/harmonize/harm')
 def harm(__ds = None):
@@ -55,7 +55,7 @@ def harm(__ds = None):
         """)
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
-        return template('harm', state='manage-ds', files=results)
+        return template('manage', state='manage-ds', files=results)
     else:
         # List of dimensions, variables and values in the harm layer
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
@@ -95,7 +95,7 @@ def harm(__ds = None):
         ORDER BY ?val
         """)
         values = sparql.query().convert()
-        return template('harm', state='manage-variables', dimvarval=dimvarval, variables=variables, values=values, ds=ds)
+        return template('manage', state='manage-variables', dimvarval=dimvarval, variables=variables, values=values, ds=ds)
 
 @route('/harmonize/update', method = 'POST')
 def update():
@@ -116,6 +116,84 @@ def update():
     sparql.setQuery(insert)
     insertResults = sparql.query().convert()
     return harm(ds)
+
+@route('/harmonize/query-iface')
+def query_iface():
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    # List of all variables (feeding the combos)
+    sparql.setQuery("""
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?var
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    ?value skos:inScheme ?var .
+    } GROUP BY ?var
+    ORDER BY ?var
+    """)
+    sparql.setReturnFormat(JSON)
+    variables = sparql.query().convert()
+    # List of all values (feeding the combos)
+    sparql.setQuery("""
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?val
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    ?val skos:inScheme ?var .
+    } GROUP BY ?val
+    ORDER BY ?val
+    """)
+    sparql.setReturnFormat(JSON)
+    values = sparql.query().convert()
+    return template('query', state='start', variables=variables, values=values)
+
+@route('/harmonize/query', method = 'POST')
+def query():
+    variable = request.forms.get("ddVariable")
+    value = request.forms.get("ddValue")
+    print variable, value
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    query = """
+    PREFIX d2s: <http://www.data2semantics.org/core/>
+    SELECT ?g ?cell ?dim ?population
+    FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
+    WHERE {
+    GRAPH ?g { ?cell d2s:isObservation [ d2s:dimension ?dim ;
+    d2s:populationSize ?population ] .
+    { SELECT ?dim FROM <http://lod.cedar-project.nl/resource/harm> WHERE { ?dim <%s> <%s> . } }
+    }
+    } GROUP BY ?g ORDER BY ?g
+    """ % (variable, value)
+    print query
+    sparql.setQuery(query)
+    sparql.setReturnFormat(JSON)
+    numbers = sparql.query().convert()
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    # List of all variables (feeding the combos)
+    sparql.setQuery("""
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?var
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    ?value skos:inScheme ?var .
+    } GROUP BY ?var
+    ORDER BY ?var
+    """)
+    sparql.setReturnFormat(JSON)
+    variables = sparql.query().convert()
+    # List of all values (feeding the combos)
+    sparql.setQuery("""
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?val
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    ?val skos:inScheme ?var .
+    } GROUP BY ?val
+    ORDER BY ?val
+    """)
+    sparql.setReturnFormat(JSON)
+    values = sparql.query().convert()
+    return template('query', state='results', numbers=numbers, variables=variables, values=values)
+    
 
 # Static Routes
 @route('/js/<filename:re:.*\.js>')
