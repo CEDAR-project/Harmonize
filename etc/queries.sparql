@@ -56,3 +56,15 @@ OPTIONAL {
 }
 } ORDER BY ?dim
 
+# Harmonized access to cells according to standard dimensions
+
+PREFIX d2s: <http://www.data2semantics.org/core/>
+
+SELECT ?g ?cell ?dim ?population
+FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
+WHERE {
+GRAPH ?g { ?cell d2s:isObservation [ d2s:dimension ?dim ;
+                                     d2s:populationSize ?population ] .
+{ SELECT ?dim FROM <http://lod.cedar-project.nl/resource/harm> WHERE { ?dim <http://purl.org/linked-data/sdmx/2009/code#sex> <http://purl.org/linked-data/sdmx/2009/code#sex-M>. } }
+}
+} GROUP BY ?g
