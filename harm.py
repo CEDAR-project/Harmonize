@@ -64,11 +64,15 @@ def harm(__ds = None):
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
         sparql.setQuery("""
         PREFIX d2s: <http://www.data2semantics.org/core/>
-        SELECT DISTINCT(?dim) ?var ?val
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT DISTINCT(?dim) ?ldim ?var ?val
         FROM <%s>
         FROM <http://lod.cedar-project.nl/resource/harm>
         WHERE {
-        {GRAPH <%s> {?s d2s:dimension ?dim .}}
+        {GRAPH <%s> {
+        ?s d2s:dimension ?dim .
+        ?dim skos:prefLabel ?ldim .
+        }}
         OPTIONAL {
         {GRAPH <http://lod.cedar-project.nl/resource/harm> {?dim ?var ?val .}}
         }

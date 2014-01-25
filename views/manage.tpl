@@ -27,9 +27,10 @@
 	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td><b>Save</b></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
 	  %  dim = line["dim"]["value"] if "dim" in line else ""
+	  %  ldim = line["ldim"]["value"] if "dim" in line else ""
           <tr>
 	    <form action="/harmonize/update" method="post">
-	    <td>{{dim}}</td>
+	    <td>{{ldim}}</td>
 	    <td>
 	      <select name="ddVariable">
 		<option value="None">N/A</option>
