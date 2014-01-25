@@ -2,10 +2,20 @@
 
 	%if state == 'manage-ds':
 	<p>Select a dataset:</p>
+	<table>
 	  %for file in files["results"]["bindings"]:
 	  %   ds = file["g"]["value"]
-	  <a href="harm?ds={{ds}}">{{ds}}</a><br>
+	  %   title = file["ltitle"]["value"]
+	  <tr>
+	    <td>
+	      <a href="harm?ds={{ds}}">{{ds}}</a><br>
+	    </td>
+	    <td>
+	      {{title}}
+	    </td>
+	  </tr>
 	  %end
+	</table>
 
 	<br>
 	<a href="/harmonize">Back</a>
@@ -49,7 +59,7 @@
 
 
 	<br>
-	<a href="/harmonize">Back</a>
+	<a href="/harmonize/harm?ds={{ds}}">Back</a>
 
 	%else:
 

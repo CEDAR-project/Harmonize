@@ -45,11 +45,14 @@ def harm(__ds = None):
         sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
         sparql.setQuery("""
         PREFIX d2s: <http://www.data2semantics.org/core/>
-        SELECT ?g
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        SELECT ?g ?ltitle
         FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
         WHERE {
         GRAPH ?g {
-        ?s d2s:dimension ?dim
+        ?title a d2s:Title .
+        ?title d2s:value ?vtitle .
+        ?vtitle skos:prefLabel ?ltitle . 
         }
         } GROUP BY ?g ORDER BY ?g
         """)
