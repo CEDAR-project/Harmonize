@@ -100,9 +100,10 @@ def harm(__ds = None):
 @route('/harmonize/update', method = 'POST')
 def update():
     dimension = request.forms.get("dim")
-    variable = request.forms.get("var")
-    value = request.forms.get("val")
+    variable = request.forms.get("ddVariable")
+    value = request.forms.get("ddValue")
     ds = request.forms.get("ds")
+    print dimension, variable, value, ds
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
     delete = """
     DELETE { GRAPH <http://lod.cedar-project.nl/resource/harm> {<%s> ?var ?val .}}
