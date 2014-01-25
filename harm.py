@@ -163,15 +163,18 @@ def query():
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
     query = """
     PREFIX d2s: <http://www.data2semantics.org/core/>
-    SELECT ?g ?cell ?dim ?population
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    SELECT ?g ?lcell ?dim ?ldim ?population
     FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
     WHERE {
     GRAPH ?g { ?cell d2s:isObservation [ d2s:dimension ?dim ;
     d2s:populationSize ?population ] .
+    ?cell d2s:cell ?lcell .
     { SELECT ?dim FROM <http://lod.cedar-project.nl/resource/harm> WHERE { ?dim <%s> <%s> . } }
+    { SELECT ?ldim FROM <http://lod.cedar-project.nl/resource/harmonization> WHERE { <%s> skos:prefLabel ?ldim } }
     }
     } GROUP BY ?g ORDER BY ?g
-    """ % (variable, value)
+    """ % (variable, value, value)
     print query
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)

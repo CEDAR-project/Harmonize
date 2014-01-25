@@ -20,21 +20,24 @@
 </form>
 
 %if state == 'results':
+<br>
+<center>
 <table>
-  <tr><td class="ui-helper-center"><b>Dataset</b></td><td class="ui-helper-center"><b>Cell</b></td><td class="ui-helper-center"><b>Variable-Value</b></td><td><b>Population</b></td></tr>
+  <tr><td class="ui-helper-center"><b>Dataset</b></td><td class="ui-helper-center"><b>Cell</b></td><td class="ui-helper-center"><b>Variable</b></td><td><b>Population</b></td></tr>
 %for result in numbers["results"]["bindings"]:
 %  dataset = result["g"]["value"]
-%  cell = result["cell"]["value"]
-%  value = result["dim"]["value"]
+%  lcell = result["lcell"]["value"]
+%  value = result["ldim"]["value"]
 %  population = result["population"]["value"]
   <tr>
     <td>{{dataset}}</td>
-    <td>{{cell}}</td>
+    <td>{{lcell}}</td>
     <td>{{value}}</td>
     <td>{{population.split(".")[0]}}</td>
   </tr>
 %end
 </table>
+</center>
 %end
 
 % include('footer.tpl')
