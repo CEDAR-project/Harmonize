@@ -59,7 +59,7 @@
 
 
 	<br>
-	<a href="/harmonize/harm?ds={{ds}}">Back</a>
+	<a href="/harmonize/harm">Back</a>
 
 	%else:
 
