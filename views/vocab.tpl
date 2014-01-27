@@ -2,7 +2,7 @@
 
 <p>Variables and values currently in the RDF Harmonization vocabulary</p>
 <center>
-<table>
+<table class="table table-hover tablee-condensed">
   <tr><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td></tr>
   %for result in results["results"]["bindings"]:
   %   var = result["var"]["value"]

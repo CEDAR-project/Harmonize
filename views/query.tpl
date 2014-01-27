@@ -2,27 +2,33 @@
 
 <p>Standard variable to query</p>
 
-<form method="post" action="/harmonize/query">
-<select name="ddVariable">
+<form role="form" method="post" action="/harmonize/query">
+<div class="form-group">
+<label for="ddVariable">Variable</label>
+<select name="ddVariable" id="ddVariable" class="form-control input-sm">
   %for variable in variables["results"]["bindings"]:
     <option value="{{variable['var']['value']}}">{{variable['var']['value']}}</option>
   %end
 </select>
-<select name="ddValue">
+</div>
+<div class="form-group">
+<label for="ddValue">Value</label>
+<select name="ddValue" class="form-control input-sm">
   %for value in values["results"]["bindings"]:
     <option value="{{value['val']['value']}}">{{value['val']['value']}}</option>
   %end
 </select>
-<br><br>
+</div>
+
 <div>
-  <input type="submit" value="Harmonized Search">
+  <input type="submit" value="Harmonized Search" class="btn btn-primary">
 </div>
 </form>
 
 %if state == 'results':
 <br>
 <center>
-<table>
+<table class="table table-hover table-condensed">
   <tr><td class="ui-helper-center"><b>Dataset</b></td><td class="ui-helper-center"><b>Cell</b></td><td class="ui-helper-center"><b>Variable</b></td><td><b>Population</b></td></tr>
 %for result in numbers["results"]["bindings"]:
 %  dataset = result["g"]["value"]

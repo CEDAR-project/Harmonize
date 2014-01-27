@@ -1,8 +1,8 @@
 % include('header.tpl', title='CEDAR Harmonize')
 
 	%if state == 'manage-ds':
-	<p>Select a dataset:</p>
-	<table>
+	<p>Select a dataset</p>
+	<table class="table table-hover table-condensed">
 	  %for file in files["results"]["bindings"]:
 	  %   ds = file["g"]["value"]
 	  %   title = file["ltitle"]["value"]
@@ -23,16 +23,16 @@
 	%elif state == 'manage-variables':
 	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
 
-	<table>
+	<table class="table table-hover table-condensed">
 	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td><b>Save</b></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
 	  %  dim = line["dim"]["value"] if "dim" in line else ""
 	  %  ldim = line["ldim"]["value"] if "dim" in line else ""
           <tr>
-	    <form action="/harmonize/update" method="post">
+	    <form role="form" action="/harmonize/update" method="post">
 	    <td>{{ldim}}</td>
 	    <td>
-	      <select name="ddVariable">
+	      <select name="ddVariable" class="form-control input-sm">
 		<option value="None">N/A</option>
 		%for var in variables["results"]["bindings"]:
 		<option {{"selected" if "var" in line and var['var']['value'] == line['var']['value'] else ""}} value="{{var['var']['value']}}">{{var["var"]["value"]}}</option>
@@ -40,7 +40,7 @@
 	      </select>
 	    </td>
 	    <td>
-	      <select name="ddValue">
+	      <select name="ddValue" class="form-control input-sm">
 		<option value="None">N/A</option>
 		%for val in values["results"]["bindings"]:
 		<option {{"selected" if "val" in line and val['val']['value'] == line['val']['value'] else ""}} value="{{val['val']['value']}}">{{val["val"]["value"]}}</option>
@@ -50,7 +50,7 @@
 	    <td>
 		<input type="hidden" name="dim" value="{{dim}}">
 		<input type="hidden" name="ds" value="{{ds}}">
-		<input value="Save" type="submit" />
+		<input value="Save" type="submit" class="btn btn-default" />
 	      </form>
 	    </td>
 	  </tr>
