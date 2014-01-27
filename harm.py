@@ -76,7 +76,7 @@ def harm(__ds = None):
         OPTIONAL {
         {GRAPH <http://lod.cedar-project.nl/resource/harm> {?dim ?var ?val .}}
         }
-        } ORDER BY ?dim
+        } ORDER BY ?ldim
         """ % (ds, ds))
         sparql.setReturnFormat(JSON)
         dimvarval = sparql.query().convert()
