@@ -24,7 +24,7 @@
 	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
 
 	<table class="table table-hover table-condensed">
-	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td><b>Save</b></td></tr>
+	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
 	  %  dim = line["dim"]["value"] if "dim" in line else ""
 	  %  ldim = line["ldim"]["value"] if "dim" in line else ""
