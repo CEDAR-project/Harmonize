@@ -29,7 +29,7 @@
 <br>
 <center>
 <table class="table table-hover table-condensed">
-  <tr><td class="ui-helper-center"><b>Dataset</b></td><td class="ui-helper-center"><b>Cell</b></td><td class="ui-helper-center"><b>Variable</b></td><td><b>Population</b></td></tr>
+  <tr><td class="ui-helper-center"><b>Dataset / Table</b></td><td class="ui-helper-center"><b>Cell</b></td><td class="ui-helper-center"><b>Variable</b></td><td><b>Population</b></td></tr>
 %for result in numbers["results"]["bindings"]:
 %  dataset = result["g"]["value"]
 %  lcell = result["lcell"]["value"]

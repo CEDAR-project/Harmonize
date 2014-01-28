@@ -1,8 +1,8 @@
 % include('header.tpl', title='CEDAR Harmonize')
 
 	%if state == 'manage-ds':
-	<p>Select a dataset</p>
 	<table class="table table-hover table-condensed">
+	  <tr><td class="ui-helper-center"><b>Dataset / Table</b></td><td class="ui-helper-center"><b>Description</b></td></tr>
 	  %for file in files["results"]["bindings"]:
 	  %   ds = file["g"]["value"]
 	  %   title = file["ltitle"]["value"]
