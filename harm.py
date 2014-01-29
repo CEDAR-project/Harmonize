@@ -1,5 +1,6 @@
 from bottle import route, run, template, request, static_file
 from SPARQLWrapper import SPARQLWrapper, JSON
+import urllib
 import logging
 import glob
 import sys
@@ -162,7 +163,7 @@ def query():
     sumcheck = request.forms.get("sum")
     print variable, value, sumcheck
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
-    projections = "?g ?ldim (SUM(?population) AS ?population)" if sumcheck else "?g ?lcell ?dim ?ldim ?population"
+    projections = "?g ?ldim (SUM(?population) AS ?population)" if sumcheck else "?g ?lcell ?ldim ?population"
     query = """
     PREFIX d2s: <http://www.data2semantics.org/core/>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
@@ -206,7 +207,10 @@ def query():
     """)
     sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
-    return template('query', state='results', numbers=numbers, variables=variables, values=values, prevvar=variable, prevval=value, sumcheck=sumcheck)
+    #Finally, prepare the CSV query URL
+    params = { "default-graph-uri" : "", "query" : query, "format" : "text/csv", "timeout" : 0, "debug" : "on"}
+    url = "http://lod.cedar-project.nl:8080/sparql/cedar?" + urllib.urlencode(params)
+    return template('query', state='results', numbers=numbers, variables=variables, values=values, prevvar=variable, prevval=value, sumcheck=sumcheck, url=url)
     
 
 # Static Routes
