@@ -153,7 +153,7 @@ def query_iface():
     """)
     sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
-    return template('query', state='start', variables=variables, values=values)
+    return template('query', state='start', variables=variables, values=values, prevvar=None, prevval=None)
 
 @route('/harmonize/query', method = 'POST')
 def query():
@@ -204,7 +204,7 @@ def query():
     """)
     sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
-    return template('query', state='results', numbers=numbers, variables=variables, values=values)
+    return template('query', state='results', numbers=numbers, variables=variables, values=values, prevvar=variable, prevval=value)
     
 
 # Static Routes
