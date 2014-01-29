@@ -1,6 +1,8 @@
 % include('header.tpl', title='CEDAR Harmonize')
 
-<p>Standard variable to query</p>
+<h2>Query interface</h2>
+
+<p>To query the harmonized census variables, please select a dimension, and optionally one or more codes to get all the macthing census observations. To aggregate the results, tick the apropriate checkbox.</p>
 
 <form class="form-horizontal" role="form" method="post" action="/harmonize/query">
 <div class="row">
@@ -25,7 +27,13 @@
 </div>
 </div>
 </div>
-<div class="form-group">
+<div class="row checkbox col-md-12">
+  <label for="sum" class="col-md-2 col-md-offset-5 control-label">
+    <input id="sum" type="checkbox" name="sum" value="sum">Aggregate results</label>
+</div>
+<div class="row form-group">
+</div>
+<div class="row form-group">
   <input type="submit" value="Harmonized Search" class="btn btn-primary">
 </div>
 </form>

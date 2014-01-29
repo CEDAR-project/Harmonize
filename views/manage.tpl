@@ -1,6 +1,11 @@
 % include('header.tpl', title='CEDAR Harmonize')
 
+<h2>Manage harmonization layer</h2>
+
+
 	%if state == 'manage-ds':
+<p>To manage the harmonization mappings of a dataset / table, please select first one in the column at the left.</p>
+
 	<table class="table table-hover table-condensed">
 	  <tr><td class="ui-helper-center"><b>Dataset / Table</b></td><td class="ui-helper-center"><b>Description</b></td></tr>
 	  %for file in files["results"]["bindings"]:
@@ -21,10 +26,12 @@
 	<a href="/harmonize">Back</a>
 
 	%elif state == 'manage-variables':
-	<p>Listing variable and value mappings for dimensions in dataset {{ds}}</p>
+	<p>Listing dimension and code mappings for dimensions in dataset {{ds}}</p>
+
+	<p>To create a new mapping for one of the original dimensions, or modify an existing one, select the desired values in the <i>standard dimension</i> and <i>standard code</i> columns, and click Save. To remove a mapping, select N/A in both columns and cilck Save.</p>
 
 	<table class="table table-hover table-condensed">
-	  <tr><td class="ui-helper-center"><b>Dimension</b></td><td class="ui-helper-center"><b>Variable</b></td><td class="ui-helper-center"><b>Value</b></td><td></td></tr>
+	  <tr><td class="ui-helper-center"><b>Original dimension</b></td><td class="ui-helper-center"><b>Standard dimension</b></td><td class="ui-helper-center"><b>Standard code</b></td><td></td></tr>
 	  %for line in dimvarval["results"]["bindings"]:
 	  %  dim = line["dim"]["value"] if "dim" in line else ""
 	  %  ldim = line["ldim"]["value"] if "dim" in line else ""
