@@ -11,7 +11,9 @@
 <div class="col-md-10">
 <select name="ddVariable" id="ddVariable" class="form-control input-sm">
   %for variable in variables["results"]["bindings"]:
-    <option {{"selected" if prevvar == variable["var"]["value"] else ""}} value="{{variable['var']['value']}}">{{variable['var']['value']}}</option>
+  %if "dimension" in variable:
+    <option {{"selected" if prevvar == variable["dimensionu"]["value"] else ""}} value="{{variable['dimensionu']['value']}}">{{variable['dimension']['value']}}</option>
+  %end
   %end
 </select>
 </div>
@@ -21,7 +23,9 @@
 <div class="col-md-10">
 <select name="ddValue" class="form-control input-sm">
   %for value in values["results"]["bindings"]:
-    <option {{"selected" if prevval == value["val"]["value"] else ""}} value="{{value['val']['value']}}">{{value['val']['value']}}</option>
+  %if "code" in value:
+    <option {{"selected" if prevval == value["codeu"]["value"] else ""}} value="{{value['codeu']['value']}}">{{value['code']['value']}}</option>
+  %end
   %end
 </select>
 </div>

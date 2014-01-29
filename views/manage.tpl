@@ -42,7 +42,7 @@
 	      <select name="ddVariable" class="form-control input-sm">
 		<option value="None">N/A</option>
 		%for var in variables["results"]["bindings"]:
-		<option {{"selected" if "var" in line and var['var']['value'] == line['var']['value'] else ""}} value="{{var['var']['value']}}">{{var["var"]["value"]}}</option>
+		<option {{"selected" if "var" in line and var['dimensionu']['value'] == line['var']['value'] else ""}} value="{{var['dimensionu']['value']}}">{{var["dimension"]["value"]}}</option>
 		%end
 	      </select>
 	    </td>
@@ -50,7 +50,9 @@
 	      <select name="ddValue" class="form-control input-sm">
 		<option value="None">N/A</option>
 		%for val in values["results"]["bindings"]:
-		<option {{"selected" if "val" in line and val['val']['value'] == line['val']['value'] else ""}} value="{{val['val']['value']}}">{{val["val"]["value"]}}</option>
+		%if "code" in val:
+		<option {{"selected" if "val" in line and val['codeu']['value'] == line['val']['value'] else ""}} value="{{val['codeu']['value']}}">{{val["code"]["value"]}}</option>
+		%end
 		%end
 	      </select>
 	    </td>

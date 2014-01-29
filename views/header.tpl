@@ -46,7 +46,9 @@
 
       <div class="starter-template">
 
+	<a href="/harmonize">
 	<img align="center" src="/img/cedar_150x150.jpg">
+	</a>
 	<h1>CEDAR Harmonize</h1>
 	<p>CEDAR Harmonize is an RDF harmonization layer generator for non-aligned statistical datasets.</p>
 	<hr>

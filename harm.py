@@ -24,12 +24,16 @@ def vocab():
     sparql.setQuery("""
     PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?var ?value
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT ?dimension ?concept ?range ?codelist ?code
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
-    ?value skos:inScheme ?var .
-    } GROUP BY ?var
-    ORDER BY ?var
+    ?dimension a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:range ?range .
+    OPTIONAL {?dimension qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?code . }
+    } GROUP BY ?dimension ORDER BY ?dimension
     """)
     sparql.setReturnFormat(JSON)
     results = sparql.query().convert()
@@ -81,26 +85,38 @@ def harm(__ds = None):
         """ % (ds, ds))
         sparql.setReturnFormat(JSON)
         dimvarval = sparql.query().convert()
-        # List of all variables (feeding the combos)
+        # List of all dimensions (feeding the combos)
         sparql.setQuery("""
+        PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT ?var
+        PREFIX qb: <http://purl.org/linked-data/cube#>
+        SELECT DISTINCT ?dimensionu ?dimension 
         FROM <http://lod.cedar-project.nl/resource/harmonization>
         WHERE {
-        ?value skos:inScheme ?var .
-        } GROUP BY ?var
-        ORDER BY ?var
+        ?dimensionu a qb:DimensionProperty ;
+        qb:concept ?concept ;
+        rdfs:label ?dimension ;
+        rdfs:range ?range .
+        OPTIONAL {?dimensionu qb:codeList ?codelist .
+        ?codelist skos:hasTopConcept ?code . }
+        } ORDER BY ?dimension
         """)
         variables = sparql.query().convert()
-        # List of all values (feeding the combos)
+        # List of all codes (feeding the combos)
         sparql.setQuery("""
+        PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT ?val
+        PREFIX qb: <http://purl.org/linked-data/cube#>
+        SELECT DISTINCT ?codeu ?code
         FROM <http://lod.cedar-project.nl/resource/harmonization>
         WHERE {
-        ?val skos:inScheme ?var .
-        } GROUP BY ?val
-        ORDER BY ?val
+        ?dimension a qb:DimensionProperty ;
+        qb:concept ?concept ;
+        rdfs:range ?range .
+        OPTIONAL {?dimension qb:codeList ?codelist .
+        ?codelist skos:hasTopConcept ?codeu .
+        ?codeu skos:prefLabel ?code . }
+        } ORDER BY ?code
         """)
         values = sparql.query().convert()
         return template('manage', state='manage-variables', dimvarval=dimvarval, variables=variables, values=values, ds=ds)
@@ -130,29 +146,40 @@ def update():
 @route('/harmonize/query-iface')
 def query_iface():
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
-    # List of all variables (feeding the combos)
+    sparql.setReturnFormat(JSON)    
+    # List of all dimensions (feeding the combos)
     sparql.setQuery("""
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?var
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT DISTINCT ?dimensionu ?dimension 
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
-    ?value skos:inScheme ?var .
-    } GROUP BY ?var
-    ORDER BY ?var
+    ?dimensionu a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:label ?dimension ;
+    rdfs:range ?range .
+    OPTIONAL {?dimensionu qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?code . }
+    } ORDER BY ?dimension
     """)
-    sparql.setReturnFormat(JSON)
     variables = sparql.query().convert()
-    # List of all values (feeding the combos)
+    # List of all codes (feeding the combos)
     sparql.setQuery("""
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?val
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT DISTINCT ?codeu ?code
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
-    ?val skos:inScheme ?var .
-    } GROUP BY ?val
-    ORDER BY ?val
+    ?dimension a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:range ?range .
+    OPTIONAL {?dimension qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?codeu .
+    ?codeu skos:prefLabel ?code . }
+    } ORDER BY ?code
     """)
-    sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
     return template('query', state='start', variables=variables, values=values, prevvar=None, prevval=None, sumcheck=None)
 
@@ -163,6 +190,7 @@ def query():
     sumcheck = request.forms.get("sum")
     print variable, value, sumcheck
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    sparql.setReturnFormat(JSON)
     projections = "?g ?ldim (SUM(?population) AS ?population)" if sumcheck else "?g ?lcell ?ldim ?population"
     query = """
     PREFIX d2s: <http://www.data2semantics.org/core/>
@@ -180,37 +208,61 @@ def query():
     """ % (variable, value, value)
     print query
     sparql.setQuery(query)
-    sparql.setReturnFormat(JSON)
     numbers = sparql.query().convert()
-    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
-    # List of all variables (feeding the combos)
+    # List of all dimensions (feeding the combos)
     sparql.setQuery("""
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?var
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT DISTINCT ?dimensionu ?dimension 
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
-    ?value skos:inScheme ?var .
-    } GROUP BY ?var
-    ORDER BY ?var
+    ?dimensionu a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:label ?dimension ;
+    rdfs:range ?range .
+    OPTIONAL {?dimensionu qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?code . }
+    } ORDER BY ?dimension
     """)
-    sparql.setReturnFormat(JSON)
     variables = sparql.query().convert()
-    # List of all values (feeding the combos)
+    # List of all codes (feeding the combos)
     sparql.setQuery("""
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?val
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT DISTINCT ?codeu ?code
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
-    ?val skos:inScheme ?var .
-    } GROUP BY ?val
-    ORDER BY ?val
+    ?dimension a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:range ?range .
+    OPTIONAL {?dimension qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?codeu .
+    ?codeu skos:prefLabel ?code . }
+    } ORDER BY ?code
     """)
-    sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
     #Finally, prepare the CSV query URL
     params = { "default-graph-uri" : "", "query" : query, "format" : "text/csv", "timeout" : 0, "debug" : "on"}
     url = "http://lod.cedar-project.nl:8080/sparql/cedar?" + urllib.urlencode(params)
     return template('query', state='results', numbers=numbers, variables=variables, values=values, prevvar=variable, prevval=value, sumcheck=sumcheck, url=url)
+
+@route('/harmonize/admin')
+def admin():
+    return template('admin')
+
+@route('/harmonize/clear')
+def clear():
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    query = """
+    DELETE { GRAPH <http://lod.cedar-project.nl/resource/harm> {?s ?p ?o .}}
+    WHERE { GRAPH <http://lod.cedar-project.nl/resource/harm> {?s ?p ?o .}}
+    """
+    sparql.setQuery(query)
+    sparql.setReturnFormat(JSON)
+    sparql.query().convert()
+    return admin()
     
 
 # Static Routes
