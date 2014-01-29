@@ -2,25 +2,30 @@
 
 <p>Standard variable to query</p>
 
-<form role="form" method="post" action="/harmonize/query">
-<div class="form-group">
-<label for="ddVariable">Variable</label>
+<form class="form-horizontal" role="form" method="post" action="/harmonize/query">
+<div class="row">
+<div class="form-group col-md-6">
+<label for="ddVariable" class="col-md-2 control-label">Dimension</label>
+<div class="col-md-10">
 <select name="ddVariable" id="ddVariable" class="form-control input-sm">
   %for variable in variables["results"]["bindings"]:
     <option value="{{variable['var']['value']}}">{{variable['var']['value']}}</option>
   %end
 </select>
 </div>
-<div class="form-group">
-<label for="ddValue">Value</label>
+</div>
+<div class="form-group col-md-6">
+<label for="ddValue" class="col-md-2 control-label">Code</label>
+<div class="col-md-10">
 <select name="ddValue" class="form-control input-sm">
   %for value in values["results"]["bindings"]:
     <option value="{{value['val']['value']}}">{{value['val']['value']}}</option>
   %end
 </select>
 </div>
-
-<div>
+</div>
+</div>
+<div class="form-group">
   <input type="submit" value="Harmonized Search" class="btn btn-primary">
 </div>
 </form>
