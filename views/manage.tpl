@@ -26,7 +26,7 @@
 	<a href="/harmonize">Back</a>
 
 	%elif state == 'manage-variables':
-	<p>Listing dimension and code mappings for dimensions in dataset {{ds}}</p>
+	<h3>Mappings for dataset {{ds}}</h3>
 
 	<p>To create a new mapping for one of the original dimensions, or modify an existing one, select the desired values in the <i>standard dimension</i> and <i>standard code</i> columns, and click Save. To remove a mapping, select N/A in both columns and cilck Save.</p>
 
