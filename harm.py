@@ -153,18 +153,20 @@ def query_iface():
     """)
     sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
-    return template('query', state='start', variables=variables, values=values, prevvar=None, prevval=None)
+    return template('query', state='start', variables=variables, values=values, prevvar=None, prevval=None, sumcheck=None)
 
 @route('/harmonize/query', method = 'POST')
 def query():
     variable = request.forms.get("ddVariable")
     value = request.forms.get("ddValue")
-    print variable, value
+    sumcheck = request.forms.get("sum")
+    print variable, value, sumcheck
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    projections = "?g ?ldim (SUM(?population) AS ?population)" if sumcheck else "?g ?lcell ?dim ?ldim ?population"
     query = """
     PREFIX d2s: <http://www.data2semantics.org/core/>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-    SELECT ?g ?lcell ?dim ?ldim ?population
+    SELECT """ + projections + """
     FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
     WHERE {
     GRAPH ?g { ?cell d2s:isObservation [ d2s:dimension ?dim ;
@@ -173,7 +175,7 @@ def query():
     { SELECT ?dim FROM <http://lod.cedar-project.nl/resource/harm> WHERE { ?dim <%s> <%s> . } }
     { SELECT ?ldim FROM <http://lod.cedar-project.nl/resource/harmonization> WHERE { <%s> skos:prefLabel ?ldim } }
     }
-    } GROUP BY ?g ORDER BY ?g
+    } GROUP BY ?g ?ldim ORDER BY ?g
     """ % (variable, value, value)
     print query
     sparql.setQuery(query)
@@ -204,7 +206,7 @@ def query():
     """)
     sparql.setReturnFormat(JSON)
     values = sparql.query().convert()
-    return template('query', state='results', numbers=numbers, variables=variables, values=values, prevvar=variable, prevval=value)
+    return template('query', state='results', numbers=numbers, variables=variables, values=values, prevvar=variable, prevval=value, sumcheck=sumcheck)
     
 
 # Static Routes

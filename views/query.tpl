@@ -29,7 +29,7 @@
 </div>
 <div class="row checkbox col-md-12">
   <label for="sum" class="col-md-2 col-md-offset-5 control-label">
-    <input id="sum" type="checkbox" name="sum" value="sum">Aggregate results</label>
+    <input id="sum" type="checkbox" name="sum" value="sum" {{"checked" if sumcheck else ""}}>Aggregate results</label>
 </div>
 <div class="row form-group">
 </div>
@@ -42,17 +42,26 @@
 <br>
 <center>
 <table class="table table-hover table-condensed">
-  <tr><td class="ui-helper-center"><b>Dataset / Table</b></td><td class="ui-helper-center"><b>Cell</b></td><td class="ui-helper-center"><b>Variable</b></td><td><b>Population</b></td></tr>
+  <tr>
+    <td class="ui-helper-center"><b>Dataset / Table</b></td>
+    %if not sumcheck:
+    <td class="ui-helper-center"><b>Cell</b></td>
+    %end
+    <td class="ui-helper-center"><b>Variable</b></td>
+    <td><b>Population</b></td>
+  </tr>
 %for result in numbers["results"]["bindings"]:
 %  dataset = result["g"]["value"]
-%  lcell = result["lcell"]["value"]
+%  lcell = result["lcell"]["value"] if not sumcheck else None
 %  value = result["ldim"]["value"]
 %  population = result["population"]["value"]
   <tr>
     <td>{{dataset}}</td>
-    <td>{{lcell}}</td>
+    %if not sumcheck:
+    <td>{{lcell}}</td>   
+    %end
     <td>{{value}}</td>
-    <td>{{population.split(".")[0]}}</td>
+    <td>{{population}}</td>
   </tr>
 %end
 </table>
