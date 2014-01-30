@@ -42,22 +42,27 @@ def vocab():
     return template('vocab', state="dimensions", results=results)
 
 @route('/harmonize/vocab/detail', method = 'POST')
-def vocab_detail():
-    dim = request.forms.get("dim")
+def vocab_detail(__dim = None):
+    dim = None
+    if __dim:
+        dim = __dim
+    else:
+        dim = request.forms.get("dim")
     print dim
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
     det_dimension = """
     PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    SELECT ?concept ?range ?codelist ?code
+    SELECT DISTINCT ?code ?codel ?codelist ?concept
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
     <%s> a qb:DimensionProperty ;
     qb:concept ?concept ;
     rdfs:range ?range .
     OPTIONAL {<%s> qb:codeList ?codelist .
-    ?codelist skos:hasTopConcept ?code . }
+    ?codelist skos:hasTopConcept ?code .
+    ?code skos:prefLabel ?codel . }
     }
     """ % (dim, dim)
     sparql.setQuery(det_dimension)
@@ -86,6 +91,52 @@ def vocab_alldetails():
     sparql.setReturnFormat(JSON)
     details = sparql.query().convert()
     return template('vocab-alldetails', details=details)
+
+@route('/harmonize/vocab/addcode', method = "POST")
+def vocab_addcode():
+    code = request.forms.get("code")
+    codelist = request.forms.get("codelist")
+    codel = request.forms.get("codel")
+    dim = request.forms.get("dim")
+    concept = request.forms.get("concept")
+    print code, codelist, codel, dim
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    # If the code list does not exist, we create it
+    ask_codelist = """
+    SELECT * 
+    FROM <http://lod.cedar-project.nl/resource/harmonization> 
+    WHERE {<%s> ?p ?o .}
+    """ % codelist
+    sparql.setQuery(ask_codelist)
+    sparql.setReturnFormat(JSON)
+    cl_results = sparql.query().convert()
+    if not "p" in cl_results["results"]["bindings"]:
+        create_codelist = """
+        PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+        PREFIX qb: <http://purl.org/linked-data/cube#>
+        INSERT DATA { GRAPH <http://lod.cedar-project.nl/resource/harmonization> {
+        <%s> a skos:ConceptScheme .
+        <%s> qb:codeList <%s> .
+        }}
+        """ % (codelist, dim, codelist)
+        sparql.setQuery(create_codelist)
+        sparql.setReturnFormat(JSON)
+        sparql.query().convert()
+    insertcode = """
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    INSERT DATA { GRAPH  <http://lod.cedar-project.nl/resource/harmonization> {
+    <%s> a skos:Concept, <%s> ;
+         skos:topConceptOf <%s> ;
+         skos:prefLabel \"%s\"@en ;
+         skos:inScheme <%s> .
+    <%s> skos:hasTopConcept <%s> .
+    }}
+    """ % (code, concept, codelist, codel, codelist, codelist, code)
+    print insertcode
+    sparql.setQuery(insertcode)
+    sparql.setReturnFormat(JSON)
+    sparql.query().convert()
+    return vocab_detail(dim)
     
 @route('/harmonize/harm')
 def harm(__ds = None):
@@ -305,7 +356,7 @@ def clear():
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
     query = """
     DELETE { GRAPH <http://lod.cedar-project.nl/resource/harm> {?s ?p ?o .}}
-    WHERE { GRAPH <http://lod.cedar-project.nl/resource/harm> {?s ?p ?o .}}
+    WHERE  { GRAPH <http://lod.cedar-project.nl/resource/harm> {?s ?p ?o .}}
     """
     sparql.setQuery(query)
     sparql.setReturnFormat(JSON)
