@@ -25,7 +25,7 @@ def vocab():
     PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
-    SELECT DISTINCT ?dimensionu ?dimension 
+    SELECT DISTINCT ?dimensionu ?dimension (COUNT(?code) AS ?ncodes)
     FROM <http://lod.cedar-project.nl/resource/harmonization>
     WHERE {
     ?dimensionu a qb:DimensionProperty ;
@@ -34,7 +34,7 @@ def vocab():
     rdfs:range ?range .
     OPTIONAL {?dimensionu qb:codeList ?codelist .
     ?codelist skos:hasTopConcept ?code . }
-    } ORDER BY ?dimension
+    } GROUP BY ?dimensionu ?dimension ORDER BY ?dimension
     """
     sparql.setQuery(dimensions)
     sparql.setReturnFormat(JSON)

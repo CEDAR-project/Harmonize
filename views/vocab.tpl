@@ -12,7 +12,8 @@
   %for result in results["results"]["bindings"]:
   %   dimension = result["dimensionu"]["value"]
   %   label = result["dimension"]["value"]
-  <tr>
+  %   ncodes = int(result["ncodes"]["value"])
+  <tr {{"class=success" if ncodes > 0 else "class=danger"}}>
     <td>
       <form name="edit{{dimension}}" action="/harmonize/vocab/detail" method="post">
 	<input type="hidden" name="dim" value="{{dimension}}">
