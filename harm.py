@@ -21,7 +21,54 @@ def harmonize():
 @route('/harmonize/vocab')
 def vocab():
     sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
-    sparql.setQuery("""
+    dimensions = """
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT DISTINCT ?dimensionu ?dimension 
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    ?dimensionu a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:label ?dimension ;
+    rdfs:range ?range .
+    OPTIONAL {?dimensionu qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?code . }
+    } ORDER BY ?dimension
+    """
+    sparql.setQuery(dimensions)
+    sparql.setReturnFormat(JSON)
+    results = sparql.query().convert()
+    return template('vocab', state="dimensions", results=results)
+
+@route('/harmonize/vocab/detail', method = 'POST')
+def vocab_detail():
+    dim = request.forms.get("dim")
+    print dim
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    det_dimension = """
+    PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    PREFIX qb: <http://purl.org/linked-data/cube#>
+    SELECT ?concept ?range ?codelist ?code
+    FROM <http://lod.cedar-project.nl/resource/harmonization>
+    WHERE {
+    <%s> a qb:DimensionProperty ;
+    qb:concept ?concept ;
+    rdfs:range ?range .
+    OPTIONAL {<%s> qb:codeList ?codelist .
+    ?codelist skos:hasTopConcept ?code . }
+    }
+    """ % (dim, dim)
+    sparql.setQuery(det_dimension)
+    sparql.setReturnFormat(JSON)
+    details = sparql.query().convert()
+    return template('vocab-detail', dim=dim, details=details)
+
+@route('/harmonize/vocab/alldetails')
+def vocab_alldetails():
+    sparql = SPARQLWrapper("http://lod.cedar-project.nl:8080/sparql/cedar")
+    dimension = """
     PREFIX sdmx: <http://purl.org/linked-data/sdmx#>
     PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
     PREFIX qb: <http://purl.org/linked-data/cube#>
@@ -33,12 +80,13 @@ def vocab():
     rdfs:range ?range .
     OPTIONAL {?dimension qb:codeList ?codelist .
     ?codelist skos:hasTopConcept ?code . }
-    } GROUP BY ?dimension ORDER BY ?dimension
-    """)
+    }
+    """
+    sparql.setQuery(dimension)
     sparql.setReturnFormat(JSON)
-    results = sparql.query().convert()
-    return template('vocab', results=results)
-
+    details = sparql.query().convert()
+    return template('vocab-alldetails', details=details)
+    
 @route('/harmonize/harm')
 def harm(__ds = None):
     ds = None
@@ -51,7 +99,7 @@ def harm(__ds = None):
         sparql.setQuery("""
         PREFIX d2s: <http://www.data2semantics.org/core/>
         PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
-        SELECT ?g ?ltitle
+        SELECT DISTINCT ?g ?ltitle
         FROM <http://lod.cedar-project.nl/resource/cedar-dataset>
         WHERE {
         GRAPH ?g {

@@ -47,25 +47,29 @@
 <center>
 <table class="table table-hover table-condensed">
   <tr>
-    <td class="ui-helper-center"><b>Dataset / Table</b></td>
+    <td><b>Dataset / Table</b></td>
     %if not sumcheck:
-    <td class="ui-helper-center"><b>Cell</b></td>
+    <td><b>Cell</b></td>
     %end
-    <td class="ui-helper-center"><b>Variable</b></td>
-    <td><b>Population</b></td>
+    <td><b>Variable</b></td>
+    <td><b>Source</b></td>
+    <td><b>Interpretation</b></td>
+    <td><b>Flag</b></td>
   </tr>
 %for result in numbers["results"]["bindings"]:
 %  dataset = result["g"]["value"]
 %  lcell = result["lcell"]["value"] if not sumcheck else None
 %  value = result["ldim"]["value"]
-%  population = result["population"]["value"]
+%  population = result["population"]["value"].split(".")[0] if "e" not in result["population"]["value"] else str(float(result["population"]["value"])).split(".")[0]
   <tr>
     <td>{{dataset}}</td>
     %if not sumcheck:
     <td>{{lcell}}</td>   
     %end
     <td>{{value}}</td>
-    <td>{{population}}</td>
+    <td>{{population if not sumcheck else ""}}</td>
+    <td>{{population if sumcheck else ""}}</td>
+    <td>{{"Aggregation" if sumcheck else ""}}</td>
   </tr>
 %end
 </table>
