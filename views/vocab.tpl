@@ -33,7 +33,7 @@
   <button type="button" class="btn btn-primary btn-md">View All Details</button>
 </a>
 </div>
-
+<br>
 <div class="row">
 <a href="/harmonize">Back</a>
 </div>

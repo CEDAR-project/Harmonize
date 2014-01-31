@@ -12,9 +12,14 @@
 
 </p>
 
+<br>
+
 <button type="button" class="btn btn-primary btn-md" onclick="makesure('clear')">Clear Harmonization Layer</button>
 <button type="button" class="btn btn-primary btn-md" >Download Harmonization</button>
 <button type="button" class="btn btn-primary btn-md" >Load Harmonization...</button>
+
+<br>
+<br>
 
 
 <div class="row">
